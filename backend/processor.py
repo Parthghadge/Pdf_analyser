@@ -31,6 +31,10 @@ def create_index(document_content: str):
 
 
 def process_question(document_content: str, question: str) -> str:
-    index = create_index(document_content)
-    query_engine = index.as_query_engine()
-    return query_engine.query(question).response
+    try:
+        index = create_index(document_content)
+        query_engine = index.as_query_engine()
+        x = query_engine.query(question).response
+        return x
+    except Exception as e:
+        print(e)

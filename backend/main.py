@@ -3,7 +3,18 @@ from backend.db.database import init_db
 from backend.db import document_core, document_dao
 from . import utils, processor
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to specify allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Adjust this to specify allowed methods
+    allow_headers=["*"],  # Adjust this to specify allowed headers
+)
 
 init_db()
 
