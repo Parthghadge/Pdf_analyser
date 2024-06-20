@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import img_01 from '../images/img_01.png'
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from 'react-bootstrap/Navbar';
+import Form from 'react-bootstrap/Form';
 
 const UploadAndQuestionForm = () => {
     const [file, setFile] = useState(null);
@@ -56,29 +62,55 @@ const UploadAndQuestionForm = () => {
     };
 
     return (
-        <div className="upload-question-container">  {/* Added a container class */}
-            <h1 className="title">planet (explain like I'm 5)</h1> {/* Added title and class */}
-            <div className="upload-section"> {/* Added a section class */}
-                <label htmlFor="upload-file">Upload PDF</label>
-                <input type="file" accept="application/pdf" id="upload-file" onChange={handleFileChange} />
-                <button onClick={handleUpload}>Upload</button>
+            <div className="upload-question-container">  {/* Added a container class */}
+                        <Navbar className="bg-body-tertiary">
+                            <Container>
+                              <Navbar.Brand href="#home">
+                                <img
+                                  src={img_01}
+                                  width="150px"
+                                  height="75px"
+                                  className="d-inline-block align-top"
+                                  alt="AI Planet"
+                                />
+                              </Navbar.Brand>
+                            </Container>
+                        </Navbar>
+                        <Container>
+                            <h2>PDF Insights</h2>
+                            <p>Upload your pdf now and ask questions on it to get valuable insights.</p>
+                        </Container>
+                        <Container>
+                            <div className="upload-section" style={{'width':'fit-content', 'margin-bottom': '10px'}}> {/* Added a section class */}
+                                    <Form.Group controlId="formFile" className="mb-3">
+                                        <Form.Control type="file" accept="application/pdf" id="upload-file" onChange={handleFileChange} />
+                                    </Form.Group>
+                                    <Button variant="success" onClick={handleUpload}>Upload</Button>
+                            </div>
+                        </Container>
+
+                <Container>
+                    <div className="question-section" class="p-2 bg-light border"> {/* Added a section class */}
+                        <Form.Group className="mb-3" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Enter your question">
+                            <Form.Control placeholder="Please enter your question here" as="textarea" rows={3} />
+                        </Form.Group>
+
+                        <Button variant="success" onClick={handleQuestionSubmit}>Submit</Button>
+                    </div>
+
+                    {answer && (
+                        <div class="p-2 bg-light border">
+                            <h4>Your insights are ready</h4>
+                            <Form.Group className="mb-3">
+                                <Form.Control as="textarea" rows={10}>
+                                    {answer}
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+                    )}
+
+                </Container>
             </div>
-            <div className="question-section"> {/* Added a section class */}
-                <h2>Ask a Question</h2>
-                <textarea
-                    value={question} 
-                    onChange={(e) => setQuestion(e.target.value)} 
-                    placeholder="Enter your question" 
-                />
-                <button onClick={handleQuestionSubmit}>Submit Question</button>
-            </div>
-            {answer && (
-                <div>
-                    <h3>Answer:</h3>
-                    <p>{answer}</p>
-                </div>
-            )}
-        </div>
     );
 };
 
