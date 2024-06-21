@@ -1,5 +1,6 @@
 from peewee import DoesNotExist
 from .database import Document
+from ..logger import logger
 
 
 def get_document(document_id: int):
@@ -10,5 +11,6 @@ def get_document(document_id: int):
 
 
 def create_document(filename: str, content: str):
+    logger.info("Persisting contents of the fileZ")
     document = Document.create(filename=filename, content=content)
     return document

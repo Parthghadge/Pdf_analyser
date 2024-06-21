@@ -3,7 +3,8 @@ from peewee import Model, PostgresqlDatabase, CharField, DateTimeField, TextFiel
 from datetime import datetime
 import os
 
-# Read environment variables for database connection
+from backend.logger import logger
+
 load_dotenv()
 
 DATABASE = {
@@ -34,7 +35,7 @@ class Document(BaseModel):
     content = TextField()
 
 
-# Function to initialize the database
 def init_db():
+    logger.info("Initializing database")
     with db:
         db.create_tables([Document])

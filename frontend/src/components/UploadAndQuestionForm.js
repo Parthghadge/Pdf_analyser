@@ -19,6 +19,8 @@ const UploadAndQuestionForm = () => {
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
+        setAnswer("");
+        setDocumentId("");
     };
 
     const handleUpload = async () => {
@@ -39,6 +41,7 @@ const UploadAndQuestionForm = () => {
                 }
             });
             setDocumentId(response.data.id);
+            setAnswer("");
             setAlert({ show: true, message: `File uploaded successfully. Document ID: ${response.data.id}`, variant: 'success' });
         } catch (error) {
             console.error('There was an error uploading the file!', error);
@@ -63,8 +66,12 @@ const UploadAndQuestionForm = () => {
 
         try {
             const response = await axios.post(`http://localhost:8000/question?document_id=${documentId}&question=${question}`);
-            setAnswer(response.data.answer);
-            setAlert({ show: true, message: 'Question processed successfully.', variant: 'success' });
+            if (response.status !== 200) {
+                setAlert({ show: true, message: response.data.answer, variant: 'danger' });
+            } else {
+                setAnswer(response.data.answer);
+                setAlert({ show: true, message: 'Question processed successfully.', variant: 'success' });
+            }
         } catch (error) {
             console.error('There was an error processing the question!', error);
             setAlert({ show: true, message: 'Error processing question.', variant: 'danger' });

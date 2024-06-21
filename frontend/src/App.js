@@ -1,6 +1,6 @@
 // src/App.js
 import React from 'react';
-import UploadAndQuestionForm from './components/UploadAndAnswer';
+import UploadAndQuestionForm from './components/UploadAndQuestionForm';
 
 const App = () => {
     return (

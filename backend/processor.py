@@ -1,15 +1,16 @@
-import os
-
 from dotenv import load_dotenv
 from llama_index.core import Settings, VectorStoreIndex, Document
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.replicate import Replicate
 from transformers import AutoTokenizer
 
+from backend.logger import logger
+
 load_dotenv()
 
 
 def create_index(document_content: str):
+    logger.info("Creating index for document")
     llama2_7b_chat = "meta/llama-2-7b-chat:8e6975e5ed6174911a6ff3d60540dfd4844201974602551e10e9e87ab143d81e"
     Settings.llm = Replicate(
         model=llama2_7b_chat,
@@ -34,8 +35,7 @@ def process_question(document_content: str, question: str) -> str:
     try:
         index = create_index(document_content)
         query_engine = index.as_query_engine()
-        x = query_engine.query(question).response
-        return x
+        return query_engine.query(question).response
     except Exception as e:
-        print(e)
-        return "Our servers are busy, Please try again in some time"
+        logger.error("Error while processing question: ", e)
+        raise Exception("Our servers are busy, Please try again in some time")
