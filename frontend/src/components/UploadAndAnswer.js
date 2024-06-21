@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import img_01 from '../images/img_01.png'
+import img_01 from '../images/img_01.png';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
+import Alert from 'react-bootstrap/Alert'; // Import Alert component from React Bootstrap
 
 const UploadAndQuestionForm = () => {
     const [file, setFile] = useState(null);
     const [documentId, setDocumentId] = useState(null);
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState({ show: false, message: '', variant: '' }); // State to manage alerts
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -19,12 +23,14 @@ const UploadAndQuestionForm = () => {
 
     const handleUpload = async () => {
         if (!file) {
-            alert("Please select a file to upload.");
+            setAlert({ show: true, message: 'Please select a file to upload.', variant: 'warning' });
             return;
         }
 
         const formData = new FormData();
         formData.append('file', file);
+
+        setLoading(true);
 
         try {
             const response = await axios.post('http://localhost:8000/upload', formData, {
@@ -32,85 +38,102 @@ const UploadAndQuestionForm = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            console.log(response.data); // Debug: log the response
-            setDocumentId(response.data.id); // Ensure this sets the document ID correctly
-            alert("File uploaded successfully. Document ID: " + response.data.id);
+            setDocumentId(response.data.id);
+            setAlert({ show: true, message: `File uploaded successfully. Document ID: ${response.data.id}`, variant: 'success' });
         } catch (error) {
-            console.error("There was an error uploading the file!", error);
-            alert("File upload failed.");
+            console.error('There was an error uploading the file!', error);
+            setAlert({ show: true, message: 'File upload failed.', variant: 'danger' });
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleQuestionSubmit = async () => {
         if (!documentId) {
-            alert("Please upload a document first.");
+            setAlert({ show: true, message: 'Please upload a document first.', variant: 'warning' });
             return;
         }
 
         if (!question) {
-            alert("Please enter a question.");
+            setAlert({ show: true, message: 'Please enter a question.', variant: 'warning' });
             return;
         }
+
+        setLoading(true);
 
         try {
             const response = await axios.post(`http://localhost:8000/question?document_id=${documentId}&question=${question}`);
             setAnswer(response.data.answer);
+            setAlert({ show: true, message: 'Question processed successfully.', variant: 'success' });
         } catch (error) {
-            console.error("There was an error processing the question!", error);
-            alert("Error processing question.");
+            console.error('There was an error processing the question!', error);
+            setAlert({ show: true, message: 'Error processing question.', variant: 'danger' });
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-            <div className="upload-question-container">  {/* Added a container class */}
-                        <Navbar className="bg-body-tertiary">
-                            <Container>
-                              <Navbar.Brand href="#home">
-                                <img
-                                  src={img_01}
-                                  width="150px"
-                                  height="75px"
-                                  className="d-inline-block align-top"
-                                  alt="AI Planet"
-                                />
-                              </Navbar.Brand>
-                            </Container>
-                        </Navbar>
-                        <Container>
-                            <h2>PDF Insights</h2>
-                            <p>Upload your pdf now and ask questions on it to get valuable insights.</p>
-                        </Container>
-                        <Container>
-                            <div className="upload-section" style={{'width':'fit-content', 'margin-bottom': '10px'}}> {/* Added a section class */}
-                                    <Form.Group controlId="formFile" className="mb-3">
-                                        <Form.Control type="file" accept="application/pdf" id="upload-file" onChange={handleFileChange} />
-                                    </Form.Group>
-                                    <Button variant="success" onClick={handleUpload}>Upload</Button>
-                            </div>
-                        </Container>
-
+        <div className="upload-question-container">
+            <Navbar className="bg-body-tertiary">
                 <Container>
-                    <div className="question-section" class="p-2 bg-light border"> {/* Added a section class */}
-                        <Form.Group className="mb-3" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Enter your question">
-                            <Form.Control placeholder="Please enter your question here" as="textarea" rows={3} />
-                        </Form.Group>
-
-                        <Button variant="success" onClick={handleQuestionSubmit}>Submit</Button>
-                    </div>
-
-                    {answer && (
-                        <div class="p-2 bg-light border">
-                            <h4>Your insights are ready</h4>
-                            <Form.Group className="mb-3">
-                                <Form.Control as="textarea" rows={10}>
-                                    {answer}
-                                </Form.Control>
-                            </Form.Group>
-                        </div>
-                    )}
-
+                    <Navbar.Brand href="#home">
+                        <img
+                            src={img_01}
+                            width="150px"
+                            height="75px"
+                            className="d-inline-block align-top"
+                            alt="AI Planet"
+                        />
+                    </Navbar.Brand>
                 </Container>
-            </div>
+            </Navbar>
+            {alert.show && (
+                    <Alert variant={alert.variant} onClose={() => setAlert({ ...alert, show: false })} dismissible>
+                        {alert.message}
+                    </Alert>
+                )}
+            <Container>
+                <h2>PDF Insights</h2>
+                <p>Upload your pdf now and ask questions on it to get valuable insights.</p>
+            </Container>
+            <Container>
+                <div className="upload-section" style={{ width: 'fit-content', marginBottom: '10px' }}>
+                    <Form.Group controlId="formFile" className="mb-3">
+                        <Form.Control type="file" accept="application/pdf" id="upload-file" onChange={handleFileChange} />
+                    </Form.Group>
+                    <Button variant="success" onClick={handleUpload} disabled={loading}>
+                        {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Upload'}
+                    </Button>
+                </div>
+            </Container>
+
+            <Container>
+                <div className="question-section p-2 bg-light border">
+                    <Form.Group className="mb-3">
+                        <Form.Control
+                            placeholder="Please enter your question here"
+                            as="textarea"
+                            rows={3}
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Button variant="success" onClick={handleQuestionSubmit} disabled={loading}>
+                        {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Submit'}
+                    </Button>
+                </div>
+
+                {answer && (
+                    <div className="p-2 bg-light border">
+                        <h4>Your insights are ready</h4>
+                        <Form.Group className="mb-3">
+                            <Form.Control as="textarea" rows={10} readOnly value={answer} />
+                        </Form.Group>
+                    </div>
+                )}
+            </Container>
+        </div>
     );
 };
 

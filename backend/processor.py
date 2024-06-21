@@ -38,3 +38,4 @@ def process_question(document_content: str, question: str) -> str:
         return x
     except Exception as e:
         print(e)
+        return "Our servers are busy, Please try again in some time"
